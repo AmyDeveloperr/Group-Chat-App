@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv').config();
 
 exports.signunp = async (req, res, next) => {
     const {name, email, phone, password} = req.body;
@@ -21,4 +23,31 @@ exports.signunp = async (req, res, next) => {
      res.status(500).json({message: 'something went wrong'});
     }
     
+ }
+
+ exports.login = async (req, res, next) => {
+
+    try {
+        const {email, password} = req.body;
+
+    const user = await User.findAll({where:{email}});
+
+    if (user.length > 0) {
+        bcrypt.compare(password, user[0].password, (err, match)=> {
+            if (!match) {
+                return res.status(207).json({success: false, message:'user is unauthorized'});
+            }
+            return res.status(201).json({success: true, message:'user logged in successfully', token:generateToken(user[0].id)});
+        })
+    }else {
+        return res.status(203).json({success:false, message:'invalid email'});
+    }
+    }catch (err) {
+        res.status(500).json({success:false, message: err})
+    }
+    
+ }
+
+ function generateToken(id) {
+    return jwt.sign({userId: id}, process.env.TOKEN_SECRET)
  }
