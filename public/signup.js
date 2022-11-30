@@ -27,6 +27,7 @@ async function signup(e) {
         if (resp.status === 201) {
             //console.log(resp)
            showNotification(resp.data.message);
+           window.location.href='./login.html';
         }
         if (resp.status === 207) {
             showNotification(resp.data.message);
