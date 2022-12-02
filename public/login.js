@@ -24,6 +24,7 @@ async function login(e) {
 
         if (resp.status === 201 ) {
             showNotification(resp.data.message);
+            window.location.href = './chat.html';
         }
        if (resp.status === 207 ) {
        
