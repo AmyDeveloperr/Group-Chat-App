@@ -154,7 +154,14 @@ h1
     color: #F5EFE3;
 }
 
-chats-display
+#chats-display
 {
     color: #F7D3BA;
+
+}
+
+#message {
+    width: 300px;
+    margin: 0 auto;
+    
 }

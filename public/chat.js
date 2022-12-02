@@ -25,24 +25,25 @@ function showList(user)
 }
 
 
-// window.addEventListener('DOMContentLoaded',() =>{
-//     const token = localStorage.getItem('token')
-//     axios.get("http://localhost:3000/getchats",{headers:{"Authorization":token}})
-//     .then(result =>{
-//         for(let i =0; i<result.data.response.length;i++)
-//         {
-//             const name =result.data.response[i].user.name;
-//             const message = result.data.response[i].message;
-//             const id = result.data.response[i].id;
-//             const parentNode = document.getElementById('chats-display')
-//             const createNewUser = `<div id='${id}'> ${name}---- ${message}--</div>`
-//             parentNode.innerHTML += createNewUser;
+window.addEventListener('DOMContentLoaded',() =>{
+    const token = localStorage.getItem('token')
+    axios.get("http://localhost:3000/user/getchats",{headers:{"Authorization":token}})
+    .then(result =>{
+        console.log(result)
+        for(let i =0; i<result.data.response.length;i++)
+        {
+            const name =result.data.response[i].user.name;
+            const message = result.data.response[i].message;
+            const id = result.data.response[i].id;
+            const parentNode = document.getElementById('chats-display')
+            const createNewUser = `<div id='${id}'> ${name}---- ${message}</div>`
+            parentNode.innerHTML += createNewUser;
            
-//         }
+        }
         
-//     })
-//     .catch(err=>{
-//         console.log(err)
-//     })
+    })
+    .catch(err=>{
+        console.log(err)
+    })
 
-// })
+})

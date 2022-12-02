@@ -16,3 +16,18 @@ exports.userMessage = (req,res)=>{
     })
         
 }
+
+exports.getMessage = (req,res)=>{
+    Message1.findAll({include: [
+        {
+          model: User,
+          required: false,
+        },
+      ]})
+    .then(response =>{
+        res.status(201).json({response})
+    })
+    .catch(err =>{
+        res.status(500).json({err})
+    })
+}
