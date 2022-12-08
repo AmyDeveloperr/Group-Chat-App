@@ -10,10 +10,10 @@ const authentication = async (req, res, next)=>{
     
         const user = jwt.verify(token, process.env.TOKEN_SECRET)
        
-
         const userFound = await User.findByPk(user.userId);  //return u id of the row in table id=1 like that
-            console.log(JSON.stringify(user));
+        
             req.user = userFound;  //global req object accross funcitons
+            
             next();
     }
     catch(error)

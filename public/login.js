@@ -21,6 +21,10 @@ async function login(e) {
         const resp = await axios.post('http://localhost:3000/user/login', obj);
 
         localStorage.setItem('token', resp.data.token);
+        localStorage.setItem('name', resp.data.name);
+        localStorage.setItem('userId', resp.data.userId);
+        localStorage.setItem('localMsg', '[]');
+
 
         if (resp.status === 201 ) {
             showNotification(resp.data.message);

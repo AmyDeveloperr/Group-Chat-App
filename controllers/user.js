@@ -37,7 +37,7 @@ exports.signunp = async (req, res, next) => {
             if (!match) {
                 return res.status(207).json({success: false, message:'user is unauthorized'});
             }
-            return res.status(201).json({success: true, message:'user logged in successfully', token:generateToken(user[0].id)});
+            return res.status(201).json({success: true, message:'user logged in successfully', userId:user[0].id, name:user[0].name, token:generateToken(user[0].id)});
         })
     }else {
         return res.status(203).json({success:false, message:'invalid email'});

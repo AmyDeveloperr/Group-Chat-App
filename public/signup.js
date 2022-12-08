@@ -39,7 +39,7 @@ async function signup(e) {
 }
 
 function showNotification(message) {
-    parentNode = document.getElementById('signup-notification');
+    parentNode = document.getElementById('notification');
     const msg = `<li>${message}</li>`;
     parentNode.innerHTML += msg;
 }
