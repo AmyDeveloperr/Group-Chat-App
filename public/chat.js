@@ -25,10 +25,10 @@ const authAxios = axios.create({
 
  
 
-  { 
+  
 
     async function createGroup(event) {
-      event.preventDefault();
+      //event.preventDefault();
       try {
           const name = document.getElementById("create-group-input").value;
       const res = await authAxios.post('/create-group', {name, isAdmin:true});
@@ -61,7 +61,7 @@ const authAxios = axios.create({
   })
   .catch((err) => console.log(err));
 
-  }
+  
 
   //get groups
 
@@ -69,7 +69,7 @@ const authAxios = axios.create({
 
 
   //chats
-  {
+  
     //chats
     let localMsg = JSON.parse(localStorage.getItem("localMsg"));
     //console.log(typeof(localMsg))
@@ -134,6 +134,165 @@ const authAxios = axios.create({
                   <div><span style="color:green;"><b>${name}:</b></span><span>${input}</span></div>`;
       }
     }
-  }
+  
+    document
+    .getElementById("group-list-wrapper")
+    .addEventListener("click", (e) => {      //for changing/deleting group
 
+      if (e.target.id === "change-group-btn") {
+        const gId= e.target.parentNode.id;
+        const gName= e.target.parentNode.children[0].innerText;
+        console.log(gId,gName)
+        localStorage.setItem("groupId", gId);
+        localStorage.setItem("groupName", gName);
+        localStorage.setItem("localMsg", "[]");
+        window.location.reload();
+      }
+
+      if (e.target.id === "delete-group-btn") {
+        const gId= e.target.parentNode.id;
+        console.log(gId)
+        if (confirm("Are you sure?")) {
+          authAxios
+            .delete(`/delete-group/${gId}`)
+            .then((res) => {
+              console.log(res.data);
+              localStorage.removeItem("groupId");
+              alert(`Group with id-${gId} is deleted successfully`);
+            })
+            .catch((err) => console.log(err.response.data));
+        }
+      }
+
+      if (e.target.id === "show-users") {
+        const gId= e.target.parentNode.id;
+        authAxios
+          .get(`/get-users/?gId=${gId}`)
+          .then((res) => {
+            // console.log(res.data);
+            document.getElementById("users-inside-group").innerHTML = "";
+            res.data.userData.forEach((user) => {
+              document.getElementById("users-inside-group").innerHTML += `
+                        <li id="${user.groups[0].id}">
+                            <span>${user.name}</span>
+                            <span>${user.email}</span>
+                            <span>${user.groups[0].userGroup.isAdmin}</span>
+                            <button id="remove-user-btn" class="user-btn">Remove</button>
+                            <button id="make-admin-btn">Make Admin</button>
+                        </li> `;
+            });
+          })
+          .catch((err) => console.log(err));
+      }
+
+      if (e.target.id === "remove-user-btn") {
+        const obj = {
+          email: e.target.parentNode.children[1].innerText,
+          groupId: e.target.parentNode.id,
+        };
+        console.log(obj);
+        if (confirm("Are you sure?")) {
+          authAxios
+            .post("/remove-user", obj)
+            .then((res) => {
+              console.log(res.data);
+              alert(`user with ${obj.email} has been removed from the group`);
+            })
+            .catch((err) => {
+              console.log(err.response);
+              alert(`user with ${obj.email} not present in the group`);
+            });
+        }
+      }
+
+      if (e.target.id === "make-admin-btn") {
+        const obj= {
+            email: e.target.parentNode.children[1].innerText,
+            groupId: e.target.parentNode.id
+        }
+        // console.log(obj)
+        authAxios
+          .post("/make-admin", obj)
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => console.log(err));
+      }
+    });
+
+    //USERS FUNCTIONALITY
+
+    //POSTING USERS
+    
+    document.getElementById("user-list").addEventListener("click", (e) => {
+      //for adding/removing users
+      const email = e.target.parentNode.children[1].innerText;
+      // console.log(email)
+      const isAdmin = e.target.parentNode.children[3].checked;
+      //console.log(isAdmin)
+  
+      if (localStorage.getItem("groupId") == null) {
+        return alert("Please select a group first");
+      }
+      const obj = {
+        email: email,
+        groupId: localStorage.getItem("groupId"),
+        isAdmin: isAdmin,
+      };
+      // console.log(obj);
+      if (e.target.id === "add-user-btn") {
+        authAxios
+          .post("/add-user", obj)
+          .then((res) => {
+            console.log(res.data);
+            alert(`user with ${email} added to the group`);
+          })
+          .catch((err) => {
+            //console.log(err.response.data);
+            alert(`user with ${email} is already a member`);
+          });
+      }
+    });
  
+    authAxios
+    .get("/get-users")
+    .then((res) => {
+      // getting users
+      // console.log(res.data);
+      const userListDiv = document.getElementById("user-list");
+      userListDiv.innerHTML = "";
+      res.data.user.forEach((user) => {
+        userListDiv.innerHTML += `
+            <li id='user-${user.id}' class="user-list-inside" style="padding:5px 0;" user-list-li>
+            <span>${user.name}</span>
+            <span>${user.email}</span>
+            <label for="accept">Admin</label>
+            <input type="checkbox" id="accept">
+            <button id="add-user-btn" class="user-btn">Add</button>
+            </li> `;
+      });
+    })
+    .catch((err) => console.log(err.response));
+
+
+    /* For searching in user list*/
+  document.querySelector("[data-search]").addEventListener("input", (e) => {
+    //search bar
+    const value = e.target.value.toLowerCase();
+    const userList = document.getElementById("user-list");
+    const li = userList.getElementsByTagName("li");
+    // console.log(li);
+    // console.log(Array.from(li));
+    Array.from(li).forEach((user) => {
+      const email = user.children[0].textContent;
+      const name = user.children[1].textContent;
+      if (
+        (email.toLowerCase().indexOf(value) ||
+          email.toLowerCase().indexOf(value)) !== -1
+      ) {
+        user.style.display = "block";
+      } else {
+        user.style.display = "none";
+      }
+    });
+  });
